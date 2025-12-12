@@ -132,19 +132,33 @@ Each session includes:
 ## 📸 Screenshots
 
 ### Dashboard
-- Summary cards showing total expenses, transaction count, and categories
-- Pie chart visualization of spending by category
-- Recent transactions table
+Summary cards showing total expenses, transaction count, and categories with pie chart visualization.
+
+<img src="docs/images/dashboard-page.jpg" width="1000" height="800" alt="Dashboard Page">
 
 ### Expense Management
-- Sortable expense list with category badges
-- Create/Edit forms with validation
-- Delete confirmation
+
+**Expenses List** - Sortable expense list with category badges.
+
+<img src="docs/images/Expenses-Page.jpg" width="1000" height="800" alt="Expenses Page">
+
+**Create Expense** - Add new expenses with validation.
+
+<img src="docs/images/CreateNewExpensesPage.jpg" width="1000" height="800" alt="Create New Expense">
+
+**Edit Expense** - Modify existing expenses.
+
+<img src="docs/images/Edit-Expenses-Page.jpg" width="1000" height="800" alt="Edit Expense">
 
 ### Category Management
-- Card-based category grid with custom colors
-- Icon support (Font Awesome)
-- Expense count per category
+
+**Categories List** - Card-based category grid with custom colors and icons.
+
+<img src="docs/images/Categories-Page.jpg" width="1000" height="800" alt="Categories Page">
+
+**Create Category** - Add new categories with color picker and icon support.
+
+<img src="docs/images/CreateNewCategoryPage.jpg" width="1000" height="800" alt="Create New Category">
 
 ## 🧪 Database
 
