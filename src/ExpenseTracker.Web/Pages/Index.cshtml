@@ -1,0 +1,246 @@
+﻿@page
+@model IndexModel
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container-fluid">
+    <h1 class="mb-4">
+        <i class="fas fa-chart-line me-2"></i>Dashboard
+    </h1>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <!-- Total Expenses Card -->
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-primary h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2 text-white-50">Total Expenses</h6>
+                            <h2 class="card-title mb-0">@Model.TotalExpenses.ToString("C")</h2>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-primary bg-opacity-75 border-0">
+                    <small><i class="fas fa-info-circle me-1"></i>All time total</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction Count Card -->
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-success h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2 text-white-50">Transactions</h6>
+                            <h2 class="card-title mb-0">@Model.ExpenseCount</h2>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-success bg-opacity-75 border-0">
+                    <small><i class="fas fa-info-circle me-1"></i>Total expense entries</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories Card -->
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-info h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2 text-white-50">Categories</h6>
+                            <h2 class="card-title mb-0">@Model.CategoryCount</h2>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-info bg-opacity-75 border-0">
+                    <small><i class="fas fa-info-circle me-1"></i>Active categories</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart and Recent Expenses -->
+    <div class="row">
+        <!-- Pie Chart Column -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>Expenses by Category
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="expensesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Expenses Column -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>Recent Expenses
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentExpenses.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                        <th>Category</th>
+                                        <th class="text-end">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var expense in Model.RecentExpenses)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <small class="text-muted">@expense.ExpenseDate.ToString("MMM dd")</small>
+                                            </td>
+                                            <td>@expense.Description</td>
+                                            <td>
+                                                <span class="badge" style="background-color: @expense.CategoryColor">
+                                                    @expense.CategoryName
+                                                </span>
+                                            </td>
+                                            <td class="text-end fw-bold">@expense.Amount.ToString("C")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-inbox fa-3x mb-3"></i>
+                            <p>No expenses recorded yet</p>
+                            <a asp-page="/Expenses/Create" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Add Your First Expense
+                            </a>
+                        </div>
+                    }
+                </div>
+                @if (Model.RecentExpenses.Any())
+                {
+                    <div class="card-footer bg-white text-center">
+                        <a asp-page="/Expenses/Index" class="text-decoration-none">
+                            View All Expenses <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Prepare chart data from C# model
+        const chartData = @Html.Raw(JsonSerializer.Serialize(Model.ExpensesByCategory));
+        
+        // Extract labels and data for Chart.js
+        const labels = Object.keys(chartData);
+        const data = labels.map(label => {
+            const expenses = chartData[label];
+            return expenses.reduce((sum, expense) => sum + expense.amount, 0);
+        });
+
+        // Generate colors for each category
+        const backgroundColors = [
+            'rgba(54, 162, 235, 0.8)',
+            'rgba(255, 99, 132, 0.8)',
+            'rgba(255, 206, 86, 0.8)',
+            'rgba(75, 192, 192, 0.8)',
+            'rgba(153, 102, 255, 0.8)',
+            'rgba(255, 159, 64, 0.8)',
+            'rgba(199, 199, 199, 0.8)',
+            'rgba(83, 102, 255, 0.8)'
+        ];
+
+        const borderColors = [
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 99, 132, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(199, 199, 199, 1)',
+            'rgba(83, 102, 255, 1)'
+        ];
+
+        // Initialize Chart.js
+        const ctx = document.getElementById('expensesChart');
+        
+        if (data.length > 0 && data.some(value => value > 0)) {
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Amount',
+                        data: data,
+                        backgroundColor: backgroundColors.slice(0, labels.length),
+                        borderColor: borderColors.slice(0, labels.length),
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: $${value.toFixed(2)} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            // Show message when no data
+            ctx.getContext('2d');
+            ctx.style.display = 'none';
+            const parent = ctx.parentElement;
+            const message = document.createElement('div');
+            message.className = 'text-center text-muted py-5';
+            message.innerHTML = '<i class="fas fa-chart-pie fa-3x mb-3"></i><p>No expense data to display</p>';
+            parent.appendChild(message);
+        }
+    </script>
+}

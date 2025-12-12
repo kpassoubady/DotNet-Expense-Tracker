@@ -1,0 +1,31 @@
+# SQLite
+*.db
+*.db-shm
+*.db-wal
+
+# Build results
+**/bin/
+**/obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+.vs/
+
+# Rider / IntelliJ
+.idea/
+
+# VS Code (keep shared launch/tasks)
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# ASP.NET Core secrets
+**/secrets.json
+
+# OS files
+.DS_Store
